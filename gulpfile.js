@@ -10,7 +10,7 @@ gulp.task('eslint', function () {
 });
 
 gulp.task('publish', function (cb) {
-  const publish = spawn('npm', ['publish'], {cwd: './build/package', stdio: 'inherit'});
+  const publish = spawn('npm', ['publish'], {stdio: 'inherit'});
   publish.on('close', () => { cb(); });
   publish.on('error', (err) => { cb(err) });
 });

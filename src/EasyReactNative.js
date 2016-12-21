@@ -46,9 +46,13 @@ EasyReactNative.prototype = {
     this.onViewChange(this.view);
     return result;
   },
-  get: function(path, copy){
+  getData: function(path, copy){
     return this.store.get(path, copy);
-  }
+  },
+  getView: function (path) {
+    this.router.match(path);
+    return this.view;
+  },
 };
 
 EasyReactNative.Provider = Provider;
