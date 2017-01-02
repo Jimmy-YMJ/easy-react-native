@@ -5,7 +5,7 @@ const emptyFunc = () => {};
 
 function EasyReactNative(options) {
   this.view = null;
-
+  this.currentPath = '/';
   this.store = new JSONStore({
     store: options.store || {}
   });
@@ -39,10 +39,15 @@ EasyReactNative.prototype = {
   },
   update: function (path, action, a, b, c, d, e, f) {
     let result = {};
-    if(typeof action === 'function'){
-      result = this.store.do(action, a, b, c, d, e, f);
+    if(typeof path === "function"){
+      result = this.store.do(path, action, a, b, c, d, e);
+    }else{
+      this.currentPath = path;
+      if(typeof action === "function"){
+        result = this.store.do(action, a, b, c, d, e, f);
+      }
     }
-    this.router.match(path);
+    this.router.match(this.currentPath);
     this.onViewChange(this.view);
     return result;
   },
