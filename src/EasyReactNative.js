@@ -1,6 +1,7 @@
-const Router = require('mini-routerjs');
-const JSONStore = require('jsonstore-js');
-const Provider = require('./Provider');
+import Router from 'mini-routerjs';
+import JSONStore from 'jsonstore-js';
+import Provider from './Provider';
+
 const emptyFunc = () => {};
 
 function EasyReactNative(options) {
@@ -26,12 +27,12 @@ EasyReactNative.prototype = {
   },
   createRoute: function (route, callback) {
     this.router.create(route, function (request) {
-      this.view = callback(request, this.store.get());
+      this.view = callback(request, viewStore(this.store));
     }.bind(this));
   },
   createMismatch: function (callback) {
     this.router.createMismatch(function () {
-      this.view = callback(this.store.get()) || null;
+      this.view = callback(viewStore(this.store)) || null;
     }.bind(this));
   },
   updateStore: function (name, action, a, b, c, d, e, f) {
@@ -63,3 +64,14 @@ EasyReactNative.prototype = {
 EasyReactNative.Provider = Provider;
 
 module.exports = EasyReactNative;
+
+/**
+ * Wrapping the store to make sure that only accessing data copy is allowed when rendering view
+ * */
+function viewStore(store) {
+  return {
+    get: function (path) {
+      return store.get(path, true);
+    }
+  };
+}

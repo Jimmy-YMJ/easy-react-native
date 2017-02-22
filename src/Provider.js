@@ -1,7 +1,17 @@
-const EasyReactNative = require('./EasyReactNative');
-const React = require('react');
+import React, { Component, PropTypes } from 'react';
+import EasyReactNative from './EasyReactNative';
 
-const Provider = React.createClass({
+class Provider extends Component{
+  constructor(props){
+    super(props);
+    props.app.registerViewChangeCallback((view) => {
+      this.setState({view: view});
+    });
+    this.state = {
+      view: props.app.getView('/')
+    };
+  }
+
   getChildContext() {
     let app = this.props.app;
     return {
@@ -10,21 +20,22 @@ const Provider = React.createClass({
       getData: app.getData.bind(app),
       getView: app.getView.bind(app)
     };
-  },
-  render: function(){
-    return this.props.children;
   }
-});
+
+  render(){
+    return this.state.view;
+  }
+}
+
+export default Provider;
 
 Provider.PropTypes = {
-  app: React.PropTypes.instanceOf(EasyReactNative)
+  app: PropTypes.instanceOf(EasyReactNative)
 };
 
 Provider.childContextTypes = {
-  update: React.PropTypes.func.isRequired,
-  updateStore: React.PropTypes.func.isRequired,
-  getData: React.PropTypes.func.isRequired,
-  getView: React.PropTypes.func.isRequired
+  update: PropTypes.func.isRequired,
+  updateStore: PropTypes.func.isRequired,
+  getData: PropTypes.func.isRequired,
+  getView: PropTypes.func.isRequired
 };
-
-module.exports = Provider;
