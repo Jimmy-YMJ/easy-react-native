@@ -22,7 +22,7 @@ class EasyReactNative extends Component {
     this._pageRefs = [];
     this._pageStates = {};
     this._renderedPages = {};
-    this._store = new JSONStore({ store: props.initialStore || {} });
+    this._store = props.initialStore;
     this._router = new Router({
       strict: props.strict !== false
     });
@@ -127,6 +127,8 @@ class EasyReactNative extends Component {
     );
   }
 }
+
+EasyReactNative.Store = JSONStore;
 
 module.exports = EasyReactNative;
 
