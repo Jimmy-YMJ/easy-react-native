@@ -1,69 +1,149 @@
 import Router from 'mini-routerjs';
 import JSONStore from 'jsonstore-js';
-import Provider from './Provider';
+import React, {Component, PropTypes} from 'react';
+import {
+  View,
+  StyleSheet,
+  Dimensions
+} from 'react-native';
+import Page from './Page';
 
 const emptyFunc = () => {};
+const SCREEN_HEIGHT = Dimensions.get('window').height;
 
-function EasyReactNative(options) {
-  this.view = null;
-  this.currentPath = '/';
-  this.store = new JSONStore({
-    store: options.store || {}
-  });
+class EasyReactNative extends Component {
+  constructor(props) {
+    super(props);
+    this._routes = props.routes;
+    this._currentPath = props.initialPath;
+    this._prevPath = '';
+    this._currentPattern = '';
+    this._prevPattern = '';
+    this._pageRefs = [];
+    this._pageStates = {};
+    this._renderedPages = {};
+    this._store = new JSONStore({ store: props.initialStore || {} });
+    this._router = new Router({
+      strict: props.strict !== false
+    });
+    this._routes.forEach(route => {
+      let selector = typeof route.selector === "function" ? route.selector : emptyFunc;
+      // Register all routes
+      this._router.create(route.pattern, request => {
+        this._pageStates[route.pattern] = selector(request, viewStore(this._store));
+        if(request.pattern !== this._currentPattern){
+          this._prevPattern = this._currentPattern;
+        }
+        this._currentPattern = request.pattern;
 
-  this.router = new Router({
-    strict: options.strict !== false
-  });
+        this._prevPath = this._currentPath;
+        this._currentPath = request.url.url;
 
-  this.router.createMismatch(function () {
-    this.view = null;
-  }.bind(this));
-}
+        route.url = request.url.url;
+      });
+    });
 
-EasyReactNative.prototype = {
-  registerViewChangeCallback: function (cb) {
-    cb = typeof cb === 'function' ? cb : emptyFunc;
-    this.onViewChange = cb;
-  },
-  createRoute: function (route, callback) {
-    this.router.create(route, function (request) {
-      this.view = callback(request, viewStore(this.store));
-    }.bind(this));
-  },
-  createMismatch: function (callback) {
-    this.router.createMismatch(function () {
-      this.view = callback(viewStore(this.store)) || null;
-    }.bind(this));
-  },
-  updateStore: function (name, action, a, b, c, d, e, f) {
-    return this.store.do(name, action, a, b, c, d, e, f);
-  },
-  update: function (path, action, a, b, c, d, e, f) {
-    let result = {};
-    if(typeof path === "function"){
-      result = this.store.do(path, action, a, b, c, d, e);
-    }else{
-      this.currentPath = path;
-      if(typeof action === "function"){
-        result = this.store.do(action, a, b, c, d, e, f);
+    this._router.match(this._currentPath);
+
+    this.state = Object.assign({}, this._pageStates);
+  }
+
+  getChildContext() {
+    return {
+      update: this.update.bind(this),
+      updateStore: this.updateStore.bind(this),
+      getData: this.getData.bind(this)
+    };
+  }
+
+  update(path, action, a, b, c, d, e) {
+    if (typeof path === "function") {
+      this._store.do(path, action, a, b, c, d);
+    } else {
+      if (typeof action === "function") {
+        this._store.do(action, a, b, c, d, e);
       }
     }
-    this.router.match(this.currentPath);
-    this.onViewChange(this.view);
-    return result;
-  },
-  getData: function(path, copy){
-    return this.store.get(path, copy);
-  },
-  getView: function (path) {
-    this.router.match(path);
-    return this.view;
-  },
-};
+    this._router.match(typeof path === "string" && path.length ? path : this._currentPath);
+    let state = {};
+    state[this._currentPattern] = this._pageStates[this._currentPattern];
+    this.setState(state);
+  }
 
-EasyReactNative.Provider = Provider;
+  updateStore(name, action, a, b, c, d, e) {
+    return this._store.do(name, action, a, b, c, d, e);
+  }
+
+  getData(path, copy) {
+    return this._store.get(path, copy);
+  }
+
+  _renderPage(route, props) {
+    props = props || {};
+    let disabledPageStyle = null,
+      disabledPagePointerEvents = 'auto',
+      pattern = route.pattern;
+    if (pattern !== this._currentPattern) {
+      disabledPageStyle = styles.disabledPage;
+      disabledPagePointerEvents = 'none';
+    }
+    if(this._currentPath !== this._prevPath){
+      if(this._currentPath === route.url){
+        props = Object.assign({ _pageShow: true }, props);
+      }else{
+        props = Object.assign({ _pageHide: true }, props);
+      }
+    }
+    return (
+      <Page
+        _pageShow={props._pageShow}
+        _pageHide={props._pageHide}
+        collapsable={false}
+        key={`page_${route.pattern}_${route.url || ''}`}
+        ref={(page) => {
+          this._pageRefs[pattern] = page;
+        }}
+        pointerEvents={disabledPagePointerEvents}
+        style={[styles.basePage, disabledPageStyle]}>
+        {React.createElement(route.component, props)}
+      </Page>
+    );
+  }
+
+  render() {
+    let pages = this._routes.map(route => {
+      if (route.pattern === this._currentPattern || (route.pattern === this._prevPattern && this._prevPath !== this._currentPath)) {
+        let renderedPage = this._renderPage(route, this.state[route.pattern]);
+        this._renderedPages[route.pattern] = renderedPage;
+        return renderedPage;
+      } else {
+        return this._renderedPages[route.pattern];
+      }
+    });
+    return (
+      <View style={[styles.container]}>
+        {pages}
+      </View>
+    );
+  }
+}
 
 module.exports = EasyReactNative;
+
+EasyReactNative.defaultProps = {
+  initialPath: '/'
+};
+
+EasyReactNative.propTypes = {
+  routes: PropTypes.array.isRequired,
+  initialPath: PropTypes.string
+};
+
+EasyReactNative.childContextTypes = {
+  update: PropTypes.func.isRequired,
+  updateStore: PropTypes.func.isRequired,
+  getData: PropTypes.func.isRequired
+};
 
 /**
  * Wrapping the store to make sure that only accessing data copy is allowed when rendering view
@@ -75,3 +155,22 @@ function viewStore(store) {
     }
   };
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    overflow: 'hidden',
+  },
+  basePage: {
+    position: 'absolute',
+    overflow: 'hidden',
+    left: 0,
+    right: 0,
+    bottom: 0,
+    top: 0,
+  },
+  disabledPage: {
+    top: SCREEN_HEIGHT,
+    bottom: -SCREEN_HEIGHT,
+  }
+});
