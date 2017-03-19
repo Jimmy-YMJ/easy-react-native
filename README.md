@@ -19,7 +19,7 @@ import EasyReactNative from 'easy-react-native';
 File: ./index.android.js or ./index.ios.js
 ```javascript
 import React, { PropTypes, Component } from 'react';
-import EasyReactNative from 'easy-react-native';
+import EasyReactNative, { Store } from 'easy-react-native';
 import {
   AppRegistry
 } from 'react-native';
@@ -56,9 +56,15 @@ const pageThree = {
 
 // Create the root app
 
+const initialStore = new Store({
+    store: {
+        tip: 'Hello world!'
+    }
+});
+
 class AppRoot extends Component {
   render() {
-    return <EasyReactNative routes={[pageOne, pageTwo, pageThree]} initialPath="/page-one" initialStore={{currentPage: ''}}/>;
+    return <EasyReactNative routes={[pageOne, pageTwo, pageThree]} initialPath="/page-one" initialStore={initialStore}/>;
   }
 }
 
