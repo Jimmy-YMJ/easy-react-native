@@ -94,7 +94,7 @@ class EasyReactNative extends Component {
         props = Object.assign({ _pageHide: true }, props);
       }
     }
-    return (
+    return props._pageHide && route.cache === false ? null : (
       <Page
         _pageShow={props._pageShow}
         _pageHide={props._pageHide}
