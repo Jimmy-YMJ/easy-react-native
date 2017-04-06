@@ -14,6 +14,7 @@ const SCREEN_HEIGHT = Dimensions.get('window').height;
 class EasyReactNative extends Component {
   constructor(props) {
     super(props);
+    this.history = [];
     this._routes = props.routes;
     this._currentPath = props.initialPath;
     this._prevPath = '';
@@ -52,13 +53,29 @@ class EasyReactNative extends Component {
     return {
       update: this.update.bind(this),
       updateStore: this.updateStore.bind(this),
-      getData: this.getData.bind(this)
+      getData: this.getData.bind(this),
+      historyPush: this.historyPush.bind(this),
+      historyPop: this.historyPop.bind(this)
     };
   }
 
-  update(path, action, a, b, c, d, e) {
+  historyPush(url, isRoot){
+    if(isRoot === true){
+      this.history = [];
+    }
+    this.history.push(url);
+  }
+
+  historyPop(){
+    let history = this.history.pop();
+    if(history){
+      this.update(history)
+    }
+  }
+
+  update(path, action, a, b, c, d, e, f) {
     if (typeof path === "function") {
-      this._store.do(path, action, a, b, c, d);
+      this._store.do(path, action, a, b, c, d, f);
     } else {
       if (typeof action === "function") {
         this._store.do(action, a, b, c, d, e);
@@ -144,7 +161,9 @@ EasyReactNative.propTypes = {
 EasyReactNative.childContextTypes = {
   update: PropTypes.func.isRequired,
   updateStore: PropTypes.func.isRequired,
-  getData: PropTypes.func.isRequired
+  getData: PropTypes.func.isRequired,
+  historyPush: PropTypes.func.isRequired,
+  historyPop: PropTypes.func.isRequired
 };
 
 /**
