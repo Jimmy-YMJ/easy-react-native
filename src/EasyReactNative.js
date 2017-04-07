@@ -4,7 +4,8 @@ import React, {Component, PropTypes} from 'react';
 import {
   View,
   StyleSheet,
-  Dimensions
+  Dimensions,
+  Keyboard
 } from 'react-native';
 import Page from './Page';
 
@@ -108,6 +109,7 @@ class EasyReactNative extends Component {
       if(this._currentPath === route.url){
         props = Object.assign({ _pageShow: true }, props);
       }else{
+        Keyboard.dismiss();
         props = Object.assign({ _pageHide: true }, props);
       }
     }
@@ -150,12 +152,14 @@ EasyReactNative.Store = JSONStore;
 module.exports = EasyReactNative;
 
 EasyReactNative.defaultProps = {
-  initialPath: '/'
+  initialPath: '/',
+  dismissKeyboard: true
 };
 
 EasyReactNative.propTypes = {
   routes: PropTypes.array.isRequired,
-  initialPath: PropTypes.string
+  initialPath: PropTypes.string,
+  dismissKeyboard: PropTypes.bool
 };
 
 EasyReactNative.childContextTypes = {
