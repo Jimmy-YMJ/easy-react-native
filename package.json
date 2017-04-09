@@ -1,6 +1,6 @@
 {
   "name": "easy-react-native",
-  "version": "1.1.9",
+  "version": "1.1.10",
   "description": "A combination of store and router to make react-native app easy.",
   "main": "src/EasyReactNative.js",
   "contributors": [
@@ -16,12 +16,12 @@
   "author": "Jimmy-YMJ",
   "license": "MIT",
   "dependencies": {
-    "deep-equal": "^1.0.1",
-    "jsonstore-js": "^1.1.12",
-    "mini-routerjs": "^1.1.5",
-    "react": "^15.4.2",
-    "react-native": "^0.42.0",
-    "simple-url": "^1.1.8"
+    "deep-equal": ">=1.0.1",
+    "jsonstore-js": ">=1.1.12",
+    "mini-routerjs": ">=1.1.5",
+    "react": ">=15.4.2",
+    "react-native": ">=0.42.0",
+    "simple-url": ">=1.1.8"
   },
   "devDependencies": {
     "gulp": "^3.9.1",
