@@ -19,7 +19,7 @@
     "deep-equal": ">=1.0.1",
     "jsonstore-js": ">=1.1.12",
     "mini-routerjs": ">=1.1.5",
-    "react": ">=15.4.2",
+    "react": "^16.0.0-alpha.6",
     "react-native": ">=0.42.0",
     "simple-url": ">=1.1.8"
   },
