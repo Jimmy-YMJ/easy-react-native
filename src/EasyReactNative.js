@@ -75,17 +75,21 @@ class EasyReactNative extends Component {
   }
 
   update(path, action, a, b, c, d, e, f) {
+    let actionReturn;
     if (typeof path === "function") {
-      this._store.do(path, action, a, b, c, d, f);
+      actionReturn = this._store.do(path, action, a, b, c, d, f);
     } else {
       if (typeof action === "function") {
-        this._store.do(action, a, b, c, d, e);
+        actionReturn = this._store.do(action, a, b, c, d, e);
       }
     }
-    this._router.match(typeof path === "string" && path.length ? path : this._currentPath);
-    let state = {};
-    state[this._currentPattern] = this._pageStates[this._currentPattern];
-    this.setState(state);
+    actionReturn = actionReturn && Object.prototype.hasOwnProperty.call(actionReturn, 'then') && typeof actionReturn.then === 'function' ? actionReturn : Promise.resolve();
+    actionReturn.then(() => {
+      this._router.match(typeof path === "string" && path.length ? path : this._currentPath);
+      let state = {};
+      state[this._currentPattern] = this._pageStates[this._currentPattern];
+      this.setState(state);
+    });
   }
 
   updateStore(name, action, a, b, c, d, e) {
