@@ -1,6 +1,6 @@
 {
   "name": "easy-react-native",
-  "version": "1.1.11",
+  "version": "1.1.12",
   "description": "A combination of store and router to make react-native app easy.",
   "main": "src/EasyReactNative.js",
   "contributors": [
