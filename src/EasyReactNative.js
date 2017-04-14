@@ -60,8 +60,8 @@ class EasyReactNative extends Component {
     };
   }
 
-  historyPush(url, isRoot){
-    if(isRoot === true){
+  historyPush(url){
+    if(url === true){
       this.history = [];
     }
     this.history.push(url);
