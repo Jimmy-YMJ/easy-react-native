@@ -68,8 +68,9 @@ class EasyReactNative extends Component {
   }
 
   historyPop(){
-    let history = this.history.pop();
-    if(history && history !== this._currentPath){
+    let history;
+    while ((history = this.history.pop()) === this._currentPath){}
+    if(history){
       this.update(history)
     }
   }
