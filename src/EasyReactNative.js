@@ -69,12 +69,26 @@ class EasyReactNative extends Component {
 
   historyPop(){
     let history = this.history.pop();
-    if(history){
+    if(history && history !== this._currentPath){
       this.update(history)
     }
   }
 
-  update(path, action, a, b, c, d, e, f) {
+  update(pushHistory, path, action, a, b, c, d, e, f) {
+    if(typeof pushHistory !== 'boolean'){
+      pushHistory = true;
+      path = pushHistory;
+      action = path;
+      a = action;
+      b = a;
+      c = b;
+      d = c;
+      e = d;
+      f = e;
+    }
+    if(pushHistory === true && typeof path === 'string'){
+      this.historyPush(path);
+    }
     let actionReturn;
     if (typeof path === "function") {
       actionReturn = this._store.do(path, action, a, b, c, d, f);
