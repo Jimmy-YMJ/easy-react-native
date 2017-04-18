@@ -15,7 +15,7 @@ const SCREEN_HEIGHT = Dimensions.get('window').height;
 class EasyReactNative extends Component {
   constructor(props) {
     super(props);
-    this.history = [];
+    this.history = [this.props.initialPath];
     this._routes = props.routes;
     this._currentPath = props.initialPath;
     this._prevPath = '';
@@ -25,6 +25,7 @@ class EasyReactNative extends Component {
     this._pageStates = {};
     this._renderedPages = {};
     this._store = props.initialStore;
+    this._rootHistoryDic = this._getRootHistoryDict();
     this._router = new Router({
       strict: props.strict !== false
     });
@@ -50,42 +51,65 @@ class EasyReactNative extends Component {
     this.state = Object.assign({}, this._pageStates);
   }
 
+  _getRootHistoryDict(){
+    let dict = {};
+    this.props.rootHistorys.forEach(history => {
+      dict[history] = true;
+    });
+    return dict;
+  }
+
   getChildContext() {
     return {
       update: this.update.bind(this),
       updateStore: this.updateStore.bind(this),
       getData: this.getData.bind(this),
       historyPush: this.historyPush.bind(this),
-      historyPop: this.historyPop.bind(this)
+      historyPop: this.historyPop.bind(this),
+      historyRemove: this.historyRemove.bind(this)
     };
   }
 
-  historyPush(url){
-    if(url === true){
-      this.history = [];
+  historyRemove(index, count){
+    index = parseInt(index) || -1;
+    count = parseInt(count) || 1;
+    return this.history.splice(index, count);
+  }
+
+  historyPush(url, isRoot){
+    let historyLength = this.history.length;
+    if(isRoot === true || this._rootHistoryDic[url]){
+      this.history = [url];
+    }else if(!historyLength || this.history[historyLength - 1] !== url){
+      this.history.push(url);
     }
-    this.history.push(url);
   }
 
   historyPop(){
     let history;
     while ((history = this.history.pop()) === this._currentPath){}
     if(history){
-      this.update(history)
+      this.update(false, history);
+      if(this.history.length === 0){
+        this.history.push(history);
+        return true;
+      }
+
     }
+    return false;
   }
 
   update(pushHistory, path, action, a, b, c, d, e, f) {
     if(typeof pushHistory !== 'boolean'){
-      pushHistory = true;
-      path = pushHistory;
-      action = path;
-      a = action;
-      b = a;
-      c = b;
-      d = c;
-      e = d;
       f = e;
+      e = d;
+      d = c;
+      c = b;
+      b = a;
+      a = action;
+      action = path;
+      path = pushHistory;
+      pushHistory = true;
     }
     if(pushHistory === true && typeof path === 'string'){
       this.historyPush(path);
@@ -172,13 +196,15 @@ module.exports = EasyReactNative;
 
 EasyReactNative.defaultProps = {
   initialPath: '/',
-  dismissKeyboard: true
+  dismissKeyboard: true,
+  rootHistorys: []
 };
 
 EasyReactNative.propTypes = {
   routes: PropTypes.array.isRequired,
   initialPath: PropTypes.string,
-  dismissKeyboard: PropTypes.bool
+  dismissKeyboard: PropTypes.bool,
+  rootHistorys: PropTypes.array
 };
 
 EasyReactNative.childContextTypes = {
@@ -186,7 +212,8 @@ EasyReactNative.childContextTypes = {
   updateStore: PropTypes.func.isRequired,
   getData: PropTypes.func.isRequired,
   historyPush: PropTypes.func.isRequired,
-  historyPop: PropTypes.func.isRequired
+  historyPop: PropTypes.func.isRequired,
+  historyRemove: PropTypes.func.isRequired
 };
 
 /**
