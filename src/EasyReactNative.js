@@ -90,13 +90,8 @@ class EasyReactNative extends Component {
     while ((history = this.history.pop()) === this._currentPath){}
     if(history){
       this.update(false, history);
-      if(this.history.length === 0){
-        this.history.push(history);
-        return true;
-      }
-
+      this.history.push(history);
     }
-    return false;
   }
 
   update(pushHistory, path, action, a, b, c, d, e, f) {
