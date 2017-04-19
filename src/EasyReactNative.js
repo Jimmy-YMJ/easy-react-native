@@ -66,8 +66,13 @@ class EasyReactNative extends Component {
       getData: this.getData.bind(this),
       historyPush: this.historyPush.bind(this),
       historyPop: this.historyPop.bind(this),
-      historyRemove: this.historyRemove.bind(this)
+      historyRemove: this.historyRemove.bind(this),
+      historyReplace: this.historyReplace.bind(this)
     };
+  }
+
+  historyReplace(index, history){
+    return this.history.splice(index, 1, history);
   }
 
   historyRemove(index, count){
@@ -208,7 +213,8 @@ EasyReactNative.childContextTypes = {
   getData: PropTypes.func.isRequired,
   historyPush: PropTypes.func.isRequired,
   historyPop: PropTypes.func.isRequired,
-  historyRemove: PropTypes.func.isRequired
+  historyRemove: PropTypes.func.isRequired,
+  historyReplace: PropTypes.func.isRequired
 };
 
 /**
