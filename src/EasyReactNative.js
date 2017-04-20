@@ -11,6 +11,11 @@ import Page from './Page';
 
 const emptyFunc = () => {};
 const SCREEN_HEIGHT = Dimensions.get('window').height;
+const HISTORY_ACTIONS = {
+  NONE: 0,
+  PUSH: 1,
+  REPLACE: 2
+};
 
 class EasyReactNative extends Component {
   constructor(props) {
@@ -81,12 +86,16 @@ class EasyReactNative extends Component {
     return this.history.splice(index, count);
   }
 
-  historyPush(url, isRoot){
+  historyPush(url, replace){
     let historyLength = this.history.length;
-    if(isRoot === true || this._rootHistoryDic[url]){
+    if(this._rootHistoryDic[url] || !historyLength){
       this.history = [url];
-    }else if(!historyLength || this.history[historyLength - 1] !== url){
-      this.history.push(url);
+    }else{
+      if(replace === true){
+        this.history.splice(-1, 1, url);
+      }else if(this.history[historyLength - 1] !== url){
+        this.history.push(url);
+      }
     }
   }
 
@@ -99,8 +108,8 @@ class EasyReactNative extends Component {
     }
   }
 
-  update(pushHistory, path, action, a, b, c, d, e, f) {
-    if(typeof pushHistory !== 'boolean'){
+  update(historyAction, path, action, a, b, c, d, e, f) {
+    if(HISTORY_ACTIONS.indexOf(historyAction) === -1){
       f = e;
       e = d;
       d = c;
@@ -108,11 +117,20 @@ class EasyReactNative extends Component {
       b = a;
       a = action;
       action = path;
-      path = pushHistory;
-      pushHistory = true;
+      path = historyAction;
+      historyAction = HISTORY_ACTIONS.PUSH;
     }
-    if(pushHistory === true && typeof path === 'string'){
-      this.historyPush(path);
+    if(typeof path === 'string'){
+      switch (historyAction){
+        case HISTORY_ACTIONS.NONE:
+          break;
+        case HISTORY_ACTIONS.PUSH:
+          this.historyPush(path);
+          break;
+        case HISTORY_ACTIONS.REPLACE:
+          this.historyPush(path, true);
+          break;
+      }
     }
     let actionReturn;
     if (typeof path === "function") {
@@ -191,6 +209,7 @@ class EasyReactNative extends Component {
 }
 
 EasyReactNative.Store = JSONStore;
+EasyReactNative.HISTORY_ACTIONS = HISTORY_ACTIONS;
 
 module.exports = EasyReactNative;
 
