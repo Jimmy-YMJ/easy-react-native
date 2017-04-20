@@ -109,7 +109,7 @@ class EasyReactNative extends Component {
   }
 
   update(historyAction, path, action, a, b, c, d, e, f) {
-    if(HISTORY_ACTIONS.indexOf(historyAction) === -1){
+    if(!HISTORY_ACTIONS[historyAction]){
       f = e;
       e = d;
       d = c;
