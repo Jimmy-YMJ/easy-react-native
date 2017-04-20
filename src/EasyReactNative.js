@@ -11,11 +11,6 @@ import Page from './Page';
 
 const emptyFunc = () => {};
 const SCREEN_HEIGHT = Dimensions.get('window').height;
-const HISTORY_ACTIONS = {
-  NONE: 0,
-  PUSH: 1,
-  REPLACE: 2
-};
 
 class EasyReactNative extends Component {
   constructor(props) {
@@ -76,66 +71,58 @@ class EasyReactNative extends Component {
     };
   }
 
-  historyReplace(index, history){
-    return this.history.splice(index, 1, history);
+  historyReplace(target, history){
+    let targetIndex = this.history.indexOf(target);
+    if(targetIndex !== -1){
+      this.history.splice(targetIndex, 10000, history);
+    }
   }
 
-  historyRemove(index, count){
-    index = parseInt(index) || -1;
-    count = parseInt(count) || 1;
-    return this.history.splice(index, count);
+  historyRemove(target, amount){
+    amount = amount || 1;
+    let targetIndex = this.history.indexOf(target);
+    if(targetIndex !== -1){
+      this.history.splice(targetIndex, amount);
+    }
   }
 
-  historyPush(url, replace){
+  historyPush(url, isRoot){
     let historyLength = this.history.length;
-    if(this._rootHistoryDic[url] || !historyLength){
+    if(isRoot === true || this._rootHistoryDic[url]){
       this.history = [url];
     }else{
-      if(replace === true){
-        this.history.splice(-1, 1, url);
-      }else if(this.history[historyLength - 1] !== url){
-        this.history.push(url);
+      let duplicate;
+      while ((duplicate = this.history.indexOf(url)) !== -1){
+        this.history = this.history.slice(0, duplicate)
       }
+      this.history.push(url);
     }
   }
 
   historyPop(){
-    let history;
-    while ((history = this.history.pop()) === this._currentPath){}
-    if(history){
-      this.update(false, history);
-      this.history.push(history);
+    let historyIndex = historyLen = this.history.length;
+    while (historyIndex){
+      if(this.history[historyIndex - 1] === this._currentPath){
+        break;
+      }
+      historyIndex --
+    }
+    let nextHistory = this.history[historyIndex - 2];
+    if(nextHistory){
+      this.update(nextHistory);
+      return historyIndex - 2;
+    }else if(nextHistory = this.history[historyLen - 2]){
+      this.update(nextHistory);
+      return historyLen - 2;
     }
   }
 
-  update(historyAction, path, action, a, b, c, d, e, f) {
-    if(!HISTORY_ACTIONS[historyAction]){
-      f = e;
-      e = d;
-      d = c;
-      c = b;
-      b = a;
-      a = action;
-      action = path;
-      path = historyAction;
-      historyAction = HISTORY_ACTIONS.PUSH;
-    }
-    if(typeof path === 'string'){
-      switch (historyAction){
-        case HISTORY_ACTIONS.NONE:
-          break;
-        case HISTORY_ACTIONS.PUSH:
-          this.historyPush(path);
-          break;
-        case HISTORY_ACTIONS.REPLACE:
-          this.historyPush(path, true);
-          break;
-      }
-    }
+  update(path, action, a, b, c, d, e, f) {
     let actionReturn;
     if (typeof path === "function") {
       actionReturn = this._store.do(path, action, a, b, c, d, f);
-    } else {
+    } else if(typeof path === 'string'){
+      this.historyPush(path);
       if (typeof action === "function") {
         actionReturn = this._store.do(action, a, b, c, d, e);
       }
@@ -209,7 +196,6 @@ class EasyReactNative extends Component {
 }
 
 EasyReactNative.Store = JSONStore;
-EasyReactNative.HISTORY_ACTIONS = HISTORY_ACTIONS;
 
 module.exports = EasyReactNative;
 
