@@ -67,7 +67,8 @@ class EasyReactNative extends Component {
       historyPush: this.historyPush.bind(this),
       historyPop: this.historyPop.bind(this),
       historyRemove: this.historyRemove.bind(this),
-      historyReplace: this.historyReplace.bind(this)
+      historyReplace: this.historyReplace.bind(this),
+      loadStoreCache: this._store.loadCache.bind(this._store)
     };
   }
 
@@ -219,7 +220,8 @@ EasyReactNative.childContextTypes = {
   historyPush: PropTypes.func.isRequired,
   historyPop: PropTypes.func.isRequired,
   historyRemove: PropTypes.func.isRequired,
-  historyReplace: PropTypes.func.isRequired
+  historyReplace: PropTypes.func.isRequired,
+  loadStoreCache: PropTypes.func.isRequired
 };
 
 /**
