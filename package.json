@@ -17,7 +17,7 @@
   "license": "MIT",
   "dependencies": {
     "deep-equal": "^1.0.1",
-    "jsonstore-js": "^1.1.12",
+    "jsonstore-js": "^1.2.1",
     "mini-routerjs": "^1.1.5",
     "simple-url": "^1.1.8"
   },
