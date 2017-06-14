@@ -20,6 +20,7 @@ class EasyReactNative extends Component {
     this._currentPath = props.initialPath;
     this._prevPath = '';
     this._currentPattern = '';
+    this._currentRoute = null;
     this._prevPattern = '';
     this._pageRefs = [];
     this._pageStates = {};
@@ -37,6 +38,8 @@ class EasyReactNative extends Component {
         if(request.pattern !== this._currentPattern){
           this._prevPattern = this._currentPattern;
         }
+
+        this._currentRoute = route;
         this._currentPattern = request.pattern;
 
         this._prevPath = this._currentPath;
@@ -68,8 +71,13 @@ class EasyReactNative extends Component {
       historyPop: this.historyPop.bind(this),
       historyRemove: this.historyRemove.bind(this),
       historyReplace: this.historyReplace.bind(this),
-      loadStoreCache: this._store.loadCache.bind(this._store)
+      loadStoreCache: this._store.loadCache.bind(this._store),
+      getCurrentPageName: this.getCurrentPageName.bind(this)
     };
+  }
+
+  getCurrentPageName(){
+    return this._currentRoute && this._currentRoute.component.displayName || '';
   }
 
   historyReplace(target, history){
@@ -221,7 +229,8 @@ EasyReactNative.childContextTypes = {
   historyPop: PropTypes.func.isRequired,
   historyRemove: PropTypes.func.isRequired,
   historyReplace: PropTypes.func.isRequired,
-  loadStoreCache: PropTypes.func.isRequired
+  loadStoreCache: PropTypes.func.isRequired,
+  getCurrentPageName: PropTypes.func.isRequired
 };
 
 /**
