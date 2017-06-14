@@ -72,12 +72,14 @@ class EasyReactNative extends Component {
       historyRemove: this.historyRemove.bind(this),
       historyReplace: this.historyReplace.bind(this),
       loadStoreCache: this._store.loadCache.bind(this._store),
-      getCurrentPageName: this.getCurrentPageName.bind(this)
+      getCurrentPageInfo: this.getCurrentPageInfo.bind(this)
     };
   }
 
-  getCurrentPageName(){
-    return this._currentRoute && this._currentRoute.component.displayName || '';
+  getCurrentPageInfo(){
+    return {
+      displayName: this._currentRoute && this._currentRoute.component.displayName || ''
+    };
   }
 
   historyReplace(target, history){
@@ -96,7 +98,6 @@ class EasyReactNative extends Component {
   }
 
   historyPush(url, isRoot){
-    let historyLength = this.history.length;
     if(isRoot === true || this._rootHistoryDic[url]){
       this.history = [url];
     }else{
@@ -230,7 +231,7 @@ EasyReactNative.childContextTypes = {
   historyRemove: PropTypes.func.isRequired,
   historyReplace: PropTypes.func.isRequired,
   loadStoreCache: PropTypes.func.isRequired,
-  getCurrentPageName: PropTypes.func.isRequired
+  getCurrentPageInfo: PropTypes.func.isRequired
 };
 
 /**
